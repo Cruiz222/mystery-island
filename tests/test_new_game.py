@@ -156,13 +156,14 @@ class TestCollectItem(unittest.TestCase):
 
         self.assertTrue(result["success"])
         self.assertEqual(result["current_location"], "Cave")
-        self.assertEqual(player["inventory"], "lantern") 
+        self.assertEqual(result["inventory"], ["lantern"])
+        self.assertEqual(player["inventory"], ["lantern"])
         self.assertEqual(player["location"], "Cave")       
           
 
     def test_collecting_item_at_wrong_location_is_rejected(self):
         player = {
-            "Name": "Ada",
+            "name": "Ada",
             "location": "Cave",
             "inventory": [],
             "energy": 5,
@@ -182,7 +183,7 @@ class TestCollectItem(unittest.TestCase):
         player = {
             "Name": "Ada",
             "location": "Jungle",
-            "inventory": "rope",
+            "inventory": ["rope"],
             "energy": 5,
             "game_over": False,
             "game_won": False

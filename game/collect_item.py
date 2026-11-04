@@ -1,13 +1,13 @@
 def collect_item(player, item):
     location = player.get("location")
 
-    ITEM_LOCATION = {
+    ITEM_LOCATIONS = {
         "rope": "Jungle",
         "lantern": "Cave"
     }
 
     item = item.lower()
-    if ITEM_LOCATION != location:
+    if item not in ITEM_LOCATIONS or ITEM_LOCATIONS[item] != location:
         return {
             "success": False,
             "message": f"Action failed: {item} cannot be collected at this location",
