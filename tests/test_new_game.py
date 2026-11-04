@@ -3,6 +3,7 @@ import unittest
 from game.new_game import new_game
 from game.available_actions import available_actions
 from game.apply_action import apply_action
+from game.collect_item import collect_item
 
 class TestNewGame(unittest.TestCase):
     def test_new_game_starts_correct_state(self):
@@ -137,7 +138,61 @@ class TestApplyAction(unittest.TestCase):
         self.assertFalse(result["success"])
         self.assertEqual(player["location"], "Beach")
         self.assertEqual(player["energy"], 0)
+
+
+
+class TestCollectItem(unittest.TestCase):
+    def test_collecting_item_at_right_location_is_successful(self):
+        player = {
+            "Name": "Ada",
+            "location": "Cave",
+            "inventory": [],
+            "energy": 5,
+            "game_over": False,
+            "game_won": False
+        }
+
+        result = collect_item(player, "lantern")
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["current_location"], "Cave")
+        self.assertEqual(player["inventory"], "lantern") 
+        self.assertEqual(player["location"], "Cave")       
           
+
+    def test_collecting_item_at_wrong_location_is_rejected(self):
+        player = {
+            "Name": "Ada",
+            "location": "Cave",
+            "inventory": [],
+            "energy": 5,
+            "game_over": False,
+            "game_won": False
+        }
+
+        result = collect_item(player, "rope")
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["current_location"], "Cave")
+        self.assertEqual(player["inventory"], [])
+        self.assertEqual(player["location"], "Cave")
+
+
+    def test_collecting_same_item_twice_is_rejected(self):
+        player = {
+            "Name": "Ada",
+            "location": "Jungle",
+            "inventory": "rope",
+            "energy": 5,
+            "game_over": False,
+            "game_won": False
+        }
+
+        result = collect_item(player, "rope")
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["inventory"], "rope")
+        self.assertEqual(player["inventory"], "rope")
 
 if __name__ == "__main__":
     unittest.main()
