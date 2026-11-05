@@ -1,5 +1,5 @@
 def available_actions(player):
-    Valid_locations = [
+    VALID_LOCATIONS = [
         "Beach", "Cave",
         "Jungle", "Old Bridge",
         "Lighthouse"
@@ -18,10 +18,12 @@ def available_actions(player):
     elif current_location == "Jungle":
         actions.insert(0, "go to beach")
         actions.insert(1, "go to cave")
+        actions.append("collect rope")
 
     elif current_location == "Cave":
         actions.insert(0, "go to jungle")
         actions.insert(1, "go to old bridge")
+        actions.append("collect lantern")
 
     elif current_location == "Old Bridge":
         actions.insert(0, "go to cave")

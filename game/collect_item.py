@@ -6,7 +6,8 @@ def collect_item(player, item):
         "lantern": "Cave"
     }
 
-    item = item.lower()
+
+    item = item.strip().lower()
     if item not in ITEM_LOCATIONS or ITEM_LOCATIONS[item] != location:
         return {
             "success": False,

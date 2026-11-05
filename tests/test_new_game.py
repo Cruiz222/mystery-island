@@ -181,7 +181,7 @@ class TestCollectItem(unittest.TestCase):
 
     def test_collecting_same_item_twice_is_rejected(self):
         player = {
-            "Name": "Ada",
+            "name": "Ada",
             "location": "Jungle",
             "inventory": ["rope"],
             "energy": 5,
@@ -192,8 +192,46 @@ class TestCollectItem(unittest.TestCase):
         result = collect_item(player, "rope")
 
         self.assertFalse(result["success"])
-        self.assertEqual(result["inventory"], "rope")
-        self.assertEqual(player["inventory"], "rope")
+        self.assertEqual(result["inventory"], ["rope"])
+        self.assertEqual(player["inventory"], ["rope"])
+
+
+    def test_successful_collection_adds_to_inventory_and_reduce_energy(self):
+        player = {
+            "name": "Ada",
+            "location": "Jungle",
+            "inventory": [],
+            "energy": 5,
+            "game_over": False,
+            "game_won": False
+        }
+
+        result = apply_action(player, "collect rope")
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["current_location"], "Jungle")
+        self.assertEqual(result["remaining_energy"], 4)
+        self.assertEqual(player["inventory"], ["rope"])
+        self.assertEqual(player["energy"], 4)
+
+
+
+    def test_failed_collection_does_not_update_inventory_nor_reduce_energy(self):
+        player = {
+            "name": "Ada",
+            "location": "Jungle",
+            "inventory": [],
+            "energy": 5,
+            "game_over": False,
+            "game_won": False
+        }    
+
+        result = collect_item(player, "lantern")
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["inventory"], [])
+        self.assertEqual(player["inventory"], [])
+        self.assertEqual(player["energy"], 5)
 
 if __name__ == "__main__":
     unittest.main()
