@@ -7,14 +7,6 @@ from game.collect_item import collect_item
 
 class TestNewGame(unittest.TestCase):
     def test_new_game_starts_correct_state(self):
-        player = {
-            "name": "Ada",
-            "location": "Beach",
-            "energy": 6,
-            "inventory": [],
-            "game_over": False,
-            "game_won": False
-        }
 
         result = new_game("Ada")
 
@@ -24,6 +16,8 @@ class TestNewGame(unittest.TestCase):
         self.assertEqual(result["inventory"], [])
         self.assertEqual(result["game_over"], False)
         self.assertEqual(result["game_won"], False)
+
+
 
 
     def test_new_game_creates_independent_inventory(self):
@@ -142,11 +136,97 @@ class TestApplyAction(unittest.TestCase):
         self.assertEqual(player["energy"], 0)
 
 
+    def test_reaching_lighthouse_with_zero_energy_does_not_end_game(self):
+        player = {
+            "name": "Ada",
+            "location": "Old Bridge",
+            "energy": 1,
+            "inventory": ["rope", "lantern"],
+            "game_over": False,
+            "game_won": False
+        }
+
+        result = apply_action(player, "go to lighthouse")
+
+        self.assertTrue(result["success"])
+        self.assertEqual(player["location"], "Lighthouse")
+        self.assertEqual(player["energy"], 0)
+        self.assertFalse(player["game_over"])
+        self.assertFalse(player["game_won"])
+
+
+    def test_crossing_bridge_with_rope_is_successful(self):
+        player = {
+            "name": "Ada",
+            "location": "Cave",
+            "energy": 4,
+            "inventory": ["rope"],
+            "game_over": False,
+            "game_won": False
+        }
+
+        result = apply_action(player, "go to old bridge")
+
+        self.assertTrue(result["success"])
+        self.assertEqual(player["location"], "Old Bridge")
+        self.assertEqual(player["energy"], 3)
+
+
+    def test_quitting_game_sets_game_over(self):
+        player = {
+            "name": "Ada",
+            "location": "Beach",
+            "energy": 6,
+            "inventory": [],
+            "game_over": False,
+            "game_won": False
+        }
+
+        result = apply_action(player, "quit")
+
+        self.assertTrue(result["success"])
+        self.assertTrue(player["game_over"])
+        self.assertFalse(player["game_won"])
+        self.assertEqual(player["energy"], 6)
+
+
+    def test_player_can_complete_the_full_winning_route(self):
+        player = new_game("Ada")
+
+        winning_actions = [
+            "go to jungle",
+            "collect rope",
+            "go to cave",
+            "collect lantern",
+            "go to old bridge",
+            "go to lighthouse"
+        ]
+
+        for action in winning_actions:
+            result = apply_action(player, action)
+            self.assertTrue(result["success"], result["message"])
+
+        self.assertEqual(player["location"], "Lighthouse")
+        self.assertEqual(player["inventory"], ["rope", "lantern"])
+        self.assertEqual(player["energy"], 0)
+        self.assertFalse(player["game_over"])
+
+
+    def test_crossing_bridge_without_rope_is_rejected(self):
+        player = new_game("Ada")
+        player["location"] = "Old Bridge"
+
+        result = apply_action(player, "go to lighthouse")
+
+        self.assertFalse(result["success"])
+        self.assertEqual(player["location"], "Old Bridge")                
+
+
 
 class TestCollectItem(unittest.TestCase):
     def test_collecting_item_at_right_location_is_successful(self):
         player = {
-            "Name": "Ada",
+            "name": "Ada",
             "location": "Cave",
             "inventory": [],
             "energy": 6,
@@ -234,6 +314,8 @@ class TestCollectItem(unittest.TestCase):
         self.assertEqual(result["inventory"], [])
         self.assertEqual(player["inventory"], [])
         self.assertEqual(player["energy"], 6)
+
+ 
 
 if __name__ == "__main__":
     unittest.main()

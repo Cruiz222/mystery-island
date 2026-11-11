@@ -76,10 +76,10 @@ def apply_action(player, action):
 
     destination = destinations[action]
 
-    # Bridge requirement.
+        # Bridge requirement.
     if (
-        player["location"] == "Cave"
-        and destination == "Old Bridge"
+        player["location"] == "Old Bridge"
+        and destination == "Lighthouse"
         and "rope" not in player["inventory"]
     ):
         return {
@@ -90,13 +90,9 @@ def apply_action(player, action):
             "inventory": player["inventory"]
         }
 
+
     player["location"] = destination
     player["energy"] -= 1
-
-    # Energy exhaustion.
-    if player["energy"] == 0:
-        player["game_over"] = True
-        player["game_won"] = False
 
     return {
         "success": True,
@@ -105,3 +101,5 @@ def apply_action(player, action):
         "remaining_energy": player["energy"],
         "inventory": player["inventory"]
     }
+
+   
