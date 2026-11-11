@@ -1,11 +1,10 @@
+
 def new_game(name):
-    player = {
-        "name": name,
+    return {
+        "name": name.strip(),
         "location": "Beach",
-        "energy": 5,
+        "energy": 6,
         "inventory": [],
         "game_over": False,
         "game_won": False
     }
-
-    return player

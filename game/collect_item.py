@@ -1,33 +1,43 @@
-def collect_item(player, item):
-    location = player.get("location")
 
-    ITEM_LOCATIONS = {
+def collect_item(player, item):
+    item_locations = {
         "rope": "Jungle",
         "lantern": "Cave"
     }
 
-
     item = item.strip().lower()
-    if item not in ITEM_LOCATIONS or ITEM_LOCATIONS[item] != location:
+    location = player["location"]
+    inventory = player["inventory"]
+
+    if item not in item_locations:
         return {
             "success": False,
-            "message": f"Action failed: {item} cannot be collected at this location",
+            "message": f"Unknown item: {item}",
             "current_location": location,
-            "inventory": player.get("inventory")
-        }
-    
-    if item in player["inventory"]:
-        return {
-            "success": False,
-            "message": f"Action failed: {item} already exists",
-            "current_location": location,
-            "inventory": player.get("inventory")
+            "inventory": inventory
         }
 
-    player["inventory"].append(item)
+    if item_locations[item] != location:
+        return {
+            "success": False,
+            "message": f"You cannot collect {item} here.",
+            "current_location": location,
+            "inventory": inventory
+        }
+
+    if item in inventory:
+        return {
+            "success": False,
+            "message": f"You already have {item}.",
+            "current_location": location,
+            "inventory": inventory
+        }
+
+    inventory.append(item)
+
     return {
         "success": True,
-        "message": f"{item} successfully collected",
+        "message": f"You collected {item}.",
         "current_location": location,
-        "inventory": player.get("inventory")
+        "inventory": inventory
     }

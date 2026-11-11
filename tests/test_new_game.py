@@ -10,7 +10,7 @@ class TestNewGame(unittest.TestCase):
         player = {
             "name": "Ada",
             "location": "Beach",
-            "energy": 5,
+            "energy": 6,
             "inventory": [],
             "game_over": False,
             "game_won": False
@@ -20,7 +20,7 @@ class TestNewGame(unittest.TestCase):
 
         self.assertEqual(result["name"], "Ada")
         self.assertEqual(result["location"], "Beach")
-        self.assertEqual(result["energy"], 5)
+        self.assertEqual(result["energy"], 6)
         self.assertEqual(result["inventory"], [])
         self.assertEqual(result["game_over"], False)
         self.assertEqual(result["game_won"], False)
@@ -42,7 +42,7 @@ class TestAvailableActions(unittest.TestCase):
         player = {
             "name": "John",
             "location": "Beach",
-            "energy": 5
+            "energy": 6
         }
         result = available_actions(player)
 
@@ -56,7 +56,7 @@ class TestAvailableActions(unittest.TestCase):
         player = {
             "name": "John",
             "location": "Lighthouse",
-            "energy": 5
+            "energy": 6
         }
 
         result = available_actions(player)
@@ -91,36 +91,38 @@ class TestApplyAction(unittest.TestCase):
         player = {
             "name": "Ada",
             "location": "Beach",
-            "energy": 5,
+            "energy": 6,
             "game_over": False,
-            "game_won": False
+            "game_won": False,
+            "inventory": []
         }  
 
         result = apply_action(player, "go to jungle")
 
         self.assertTrue(result["success"])
         self.assertEqual(result["current_location"], "Jungle")
-        self.assertEqual(result["remaining_energy"], 4)
+        self.assertEqual(result["remaining_energy"], 5)
         self.assertEqual(player["location"], "Jungle")
-        self.assertEqual(player["energy"], 4)
+        self.assertEqual(player["energy"], 5)
 
 
     def test_illegal_move_does_not_change_player_state(self):
         player = {
             "name": "Ada",
             "location": "Beach",
-            "energy": 5,
+            "energy": 6,
             "game_over": False,
-            "game_won": False
+            "game_won": False,
+            "inventory": []
         }
 
         result = apply_action(player, "go to Cave") 
         
         self.assertFalse(result["success"])
-        self.assertEqual(result["remaining_energy"], 5)
+        self.assertEqual(result["remaining_energy"], 6)
         self.assertEqual(result["current_location"], "Beach")
         self.assertEqual(player["location"], "Beach")
-        self.assertEqual(player["energy"], 5)
+        self.assertEqual(player["energy"], 6)
 
 
     def test_move_with_zero_energy_does_not_change_state(self):
@@ -147,7 +149,7 @@ class TestCollectItem(unittest.TestCase):
             "Name": "Ada",
             "location": "Cave",
             "inventory": [],
-            "energy": 5,
+            "energy": 6,
             "game_over": False,
             "game_won": False
         }
@@ -166,7 +168,7 @@ class TestCollectItem(unittest.TestCase):
             "name": "Ada",
             "location": "Cave",
             "inventory": [],
-            "energy": 5,
+            "energy": 6,
             "game_over": False,
             "game_won": False
         }
@@ -184,7 +186,7 @@ class TestCollectItem(unittest.TestCase):
             "name": "Ada",
             "location": "Jungle",
             "inventory": ["rope"],
-            "energy": 5,
+            "energy": 6,
             "game_over": False,
             "game_won": False
         }
@@ -201,7 +203,7 @@ class TestCollectItem(unittest.TestCase):
             "name": "Ada",
             "location": "Jungle",
             "inventory": [],
-            "energy": 5,
+            "energy": 6,
             "game_over": False,
             "game_won": False
         }
@@ -210,9 +212,9 @@ class TestCollectItem(unittest.TestCase):
 
         self.assertTrue(result["success"])
         self.assertEqual(result["current_location"], "Jungle")
-        self.assertEqual(result["remaining_energy"], 4)
+        self.assertEqual(result["remaining_energy"], 5)
         self.assertEqual(player["inventory"], ["rope"])
-        self.assertEqual(player["energy"], 4)
+        self.assertEqual(player["energy"], 5)
 
 
 
@@ -221,7 +223,7 @@ class TestCollectItem(unittest.TestCase):
             "name": "Ada",
             "location": "Jungle",
             "inventory": [],
-            "energy": 5,
+            "energy": 6,
             "game_over": False,
             "game_won": False
         }    
@@ -231,7 +233,7 @@ class TestCollectItem(unittest.TestCase):
         self.assertFalse(result["success"])
         self.assertEqual(result["inventory"], [])
         self.assertEqual(player["inventory"], [])
-        self.assertEqual(player["energy"], 5)
+        self.assertEqual(player["energy"], 6)
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,7 @@
-from game.available_actions import available_actions
-from game.collect_item import collect_item
+
+from .available_actions import available_actions
+from .collect_item import collect_item
+
 
 def apply_action(player, action):
     action = action.strip().lower()
@@ -7,69 +9,99 @@ def apply_action(player, action):
     movement = action.startswith("go to ")
     is_collection = action.startswith("collect ")
 
-    legal_action = available_actions(player)
-    if action not in legal_action:
+    # Validate the action first.
+    legal_actions = available_actions(player)
+
+    if action not in legal_actions:
         return {
             "success": False,
-            "message": f"{action} not supported",
-            "current_location": player.get("location"),
-            "remaining_energy": player.get("energy")
+            "message": f"{action} is not available here.",
+            "current_location": player["location"],
+            "remaining_energy": player["energy"],
+            "inventory": player["inventory"]
         }
 
-    if (is_collection or movement) and player.get("energy", 0) <= 0:
+    # Energy validation.
+    if (movement or is_collection) and player["energy"] <= 0:
         return {
             "success": False,
-            "message": f"{action} failed, you have exhausted your energy",
-            "current_location": player.get("location", "Beach"),
-            "remaining_energy": player.get("energy", 0)
-        }    
+            "message": "You have exhausted your energy.",
+            "current_location": player["location"],
+            "remaining_energy": player["energy"],
+            "inventory": player["inventory"]
+        }
 
+    # Item collection.
     if is_collection:
-        item_name = action.replace("collect ", "").strip()
+        item = action.replace("collect ", "", 1)
+        result = collect_item(player, item)
 
-        result = collect_item(player, item_name)
+        if result["success"]:
+            player["energy"] -= 1
 
-        if result.get("success"):
-            player["energy"] -= 1  
-            return {
-                "success": True,
-                "message": f"{item_name} successfully collected",
-                "current_location": player.get("location"),
-                "inventory": player.get("inventory"),
-                "remaining_energy": player.get("energy")
-            }   
-        else:
-            return {
-                "success": False,
-                "message": result.get("message", "collection failed"),
-                "current_location": player.get("location"),
-                "remaining_energy": player.get("energy"),
-                "inventory": player.get("inventory")
-            }     
+        result["remaining_energy"] = player["energy"]
+        return result
 
-    if not movement:
+    # Inventory inspection.
+    if action == "check inventory":
         return {
             "success": True,
-            "message": f"action executed {action}",
-            "current_location": player.get("location", "Beach"),
-            "remaining_energy": player.get("energy", 0)
-        } 
+            "message": f"Your inventory: {player['inventory']}",
+            "current_location": player["location"],
+            "remaining_energy": player["energy"],
+            "inventory": player["inventory"]
+        }
 
+    # Quit game.
+    if action == "quit":
+        player["game_over"] = True
+        player["game_won"] = False
+
+        return {
+            "success": True,
+            "message": "You abandoned the island adventure.",
+            "current_location": player["location"],
+            "remaining_energy": player["energy"],
+            "inventory": player["inventory"]
+        }
+
+    # Movement destinations.
     destinations = {
         "go to jungle": "Jungle",
         "go to beach": "Beach",
         "go to cave": "Cave",
         "go to old bridge": "Old Bridge",
-        "go to lighthouse": "Lighthouse",
+        "go to lighthouse": "Lighthouse"
     }
 
     destination = destinations[action]
-    player['location'] = destination
-    player['energy'] -= 1
+
+    # Bridge requirement.
+    if (
+        player["location"] == "Cave"
+        and destination == "Old Bridge"
+        and "rope" not in player["inventory"]
+    ):
+        return {
+            "success": False,
+            "message": "You need a rope to cross the Old Bridge.",
+            "current_location": player["location"],
+            "remaining_energy": player["energy"],
+            "inventory": player["inventory"]
+        }
+
+    player["location"] = destination
+    player["energy"] -= 1
+
+    # Energy exhaustion.
+    if player["energy"] == 0:
+        player["game_over"] = True
+        player["game_won"] = False
 
     return {
         "success": True,
-        "message": f"succefully moved to {destination}",
-        "current_location": player.get("location"),
-        "remaining_energy": player.get("energy")
+        "message": f"Successfully moved to {destination}.",
+        "current_location": player["location"],
+        "remaining_energy": player["energy"],
+        "inventory": player["inventory"]
     }
